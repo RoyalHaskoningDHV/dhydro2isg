@@ -1,0 +1,59 @@
+[project]
+name = "dhydro2imod"
+version = "0.0.1"
+description = "Convert D-HYDRO output to iMOD input"
+authors = [
+    {name = "Your Name", email = "you@example.com"}
+]
+license = {text = "GPL-3.0"}
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    # Add your dependencies here
+]
+keywords = ["dhydro", "imod", "hydrology", "modeling"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD"
+"Bug Reports" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD/issues"
+"Source" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD"
+
+[project.scripts]
+dhydro2imod = "dhydro2imod.dhydro2imod:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "flake8>=3.8",
+    "black>=21.0",
+    "twine>=3.0",
+    "build>=0.7",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
