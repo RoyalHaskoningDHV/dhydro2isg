@@ -1,9 +1,8 @@
-"""D-HYDRO2iMOD: Convert D-HYDRO output to iMOD input."""
-
-__version__ = "0.0.1"
-__author__ = "Your Name"
-__email__ = "you@example.com"
-
-from .dhydro2imod import main
-
-__all__ = ["main"]
+__title__ = 'Top Flow'
+__description__ = 'Toolset for surfacewater processing for groundwater models'
+__version__ = '0.2.0'
+__author__ = 'RoyalHaskoningDHV'
+__author_email__ = 'Toine.Kerckhoffs@rhdhv.com'
+__license__ = 'Not open source'
+__url__ = 'https://dev.azure.com/corporateroot/Top_flow'
+__keywords__ = 'surfacewater groundwater topsysteem model'
