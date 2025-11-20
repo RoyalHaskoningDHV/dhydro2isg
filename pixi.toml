@@ -1,0 +1,30 @@
+[project]
+name = "GRAM_workflow"
+version = "0.1.0"
+description = "Add a short description here"
+channels = ["conda-forge", "bioconda"]
+platforms = ["win-64"]
+
+[tasks]
+
+[dependencies]
+cookiecutter = ">=2.6.0,<2.7"
+jinja2-time = ">=0.2.0,<0.3"
+dvc = ">=3.48.2"
+snakemake = ">=8.14.0,<8.15"
+imod = ">=0.17.1"
+jupyter = ">=1.0.0,<1.1"
+netcdf4 = "*"
+plotly = "*"
+pydantic = "*"
+python = ">=3.10.0,<3.12"
+shapely = "*"
+spyder = ">=5.5.5,<5.6"
+sympy = "*"
+tqdm = "*"
+
+[pypi-dependencies]
+hydrolib-core = "*"
+delft3dfmpy = "~=1.2.2"
+kaleido = "*"
+top_flow = { path = "d:/Extern/SWECO/Aa_dal_Noord/workflows/DHYDRO2ISG/src/dhydro2isg/" }
