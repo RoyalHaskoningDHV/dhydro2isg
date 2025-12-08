@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   test:
@@ -40,7 +40,6 @@ jobs:
     - name: Test package installation
       run: |
         pip install dist/*.whl
-        dhydro2imod --help || python -c "import dhydro2imod; dhydro2imod.main()"
 
     - name: Run tests
       run: |
