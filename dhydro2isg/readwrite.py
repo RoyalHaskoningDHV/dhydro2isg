@@ -60,6 +60,10 @@ def write_as_binary(df, filename, ext, savedir):
 
 
 def write_as_text(df, filename, ext, savedir):
+    from pathlib import Path
+    
+    # Ensure the output directory exists
+    Path(savedir).mkdir(parents=True, exist_ok=True)
 
     if ext == "ISG":
         save_loc = savedir + "/" + filename + "." + ext

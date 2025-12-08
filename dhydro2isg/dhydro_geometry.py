@@ -10,7 +10,7 @@ from hydrolib.core.dflowfm.crosssection.models import CrossLocModel
 
 #TODO: Create an MDU based class
 
-def create_branches(network_nc, output_folder=False):
+def create_branches(network_nc, output_folder=False, epsg=None):
     """
         Create geometry dataset of the branches of the DHydro network
         # TODO: use MDU to find crossloc file
@@ -18,6 +18,7 @@ def create_branches(network_nc, output_folder=False):
         Args:
             network_nc: path to the _net.nc file of the DHydro network
             output_folder: either False (do not export) or a path to the desired output folder
+            epsg: EPSG code to use for the CRS (optional, will try to read from network file if not provided)
 
         Returns:
             branches: A GeoDataFrame of the branches in the DHydro Network
@@ -35,8 +36,15 @@ def create_branches(network_nc, output_folder=False):
     else:
         network_key = 'network'
 
-    if 'projected_coordinate_system' in ds:
-        crs = ds.projected_coordinate_system.EPSG_code
+    if epsg is not None:
+        crs = f'EPSG:{epsg}'
+    elif 'projected_coordinate_system' in ds:
+        epsg_code = ds.projected_coordinate_system.EPSG_code
+        if epsg_code == 0 or epsg_code is None:
+            warnings.warn("Caution: invalid EPSG code (0) found in network file, assuming default CRS (EPSG:28992 RD New)")
+            crs = 'EPSG:28992'
+        else:
+            crs = f'EPSG:{epsg_code}'
     else:
         warnings.warn("Caution: no CRS found in network file, assuming default CRS (EPSG:28992 RD New)")
         crs = 'EPSG:28992'
