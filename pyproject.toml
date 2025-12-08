@@ -1,11 +1,11 @@
 [project]
-name = "dhydro2imod"
+name = "dhydro2isg"
 version = "0.0.1"
-description = "Convert D-HYDRO output to iMOD input"
+description = "Convert D-HYDRO output to ISG"
 authors = [
     {name = "Your Name", email = "you@example.com"}
 ]
-license = {text = "GPL-3.0"}
+license = license = "GPL-3.0-or-later"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
@@ -27,12 +27,9 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD"
-"Bug Reports" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD/issues"
-"Source" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD"
-
-[project.scripts]
-dhydro2imod = "dhydro2imod.dhydro2imod:main"
+"Homepage" = "https://github.com/RoyalHaskoningDHV/dhydro2isg"
+"Bug Reports" = "https://github.com/RoyalHaskoningDHV/dhydro2isg/issues"
+"Source" = "https://github.com/RoyalHaskoningDHVdhydro2isg"
 
 [project.optional-dependencies]
 dev = [
