@@ -3,7 +3,7 @@ import glob
 import pandas as pd
 import numpy as np
 import csv
-from top_flow.config import ISG_DTYPES, ISG_COLUMNS, QMARKS_COLUMNS, ISG_HEADERROWS, ISG_RECORDLENGTH
+from dhydro2isg.config import ISG_DTYPES, ISG_COLUMNS, QMARKS_COLUMNS, ISG_HEADERROWS, ISG_RECORDLENGTH
 
 
 def read_meta(ISG_file):

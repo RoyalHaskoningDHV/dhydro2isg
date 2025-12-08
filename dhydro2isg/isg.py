@@ -1,8 +1,8 @@
 import os
-from top_flow.readwrite import write_as_text, write_as_binary
-from top_flow.stf_funcs import stf_to_isp, stf_to_isd, stf_to_isq, stf_to_ist, stf_to_isc, stf_to_isg
-from top_flow.config import ISG_DTYPES
-from top_flow.readwrite import read_meta, read_isg_files
+from dhydro2isg.readwrite import write_as_text, write_as_binary
+from dhydro2isg.stf_funcs import stf_to_isp, stf_to_isd, stf_to_isq, stf_to_ist, stf_to_isc, stf_to_isg
+from dhydro2isg.config import ISG_DTYPES
+from dhydro2isg.readwrite import read_meta, read_isg_files
 
 class ISG:
     """"

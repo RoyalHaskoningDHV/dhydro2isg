@@ -1,7 +1,7 @@
 """Test the main dhydro2imod functionality."""
 
 import pytest
-from dhydro2imod.dhydro2imod import main
+from dhydro2isg.dhydro2isg_tmp import main
 
 
 def test_main_function():
