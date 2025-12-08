@@ -3,6 +3,7 @@ import warnings
 from datetime import datetime, timedelta
 from operator import itemgetter
 from hydrolib.core.dflowfm.crosssection.models import CrossDefModel, CrossLocModel
+from pydantic import ValidationError
 import collections
 
 import geopandas as gpd
@@ -257,10 +258,73 @@ def hydamo_to_xyz_lines(hydamo_gdf, epsg, x_segments, mrc):
 #     geo_df2_with_seg_name = geo_df2.sjoin(x_segments, how="left")
     return geo_df2_with_seg_name[["geometry", "segment"]]
 
-def dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini):
-    branches = create_branches(dhydro_network_nc, output_folder=False)
+def dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=None):
+    branches = create_branches(dhydro_network_nc, output_folder=False, epsg=epsg)
     crs_loc_df = pd.DataFrame([cs.__dict__ for cs in CrossLocModel(crossloc_ini).crosssection])
-    crs_def_df = pd.DataFrame([cs.__dict__ for cs in CrossDefModel(crossdef_ini).definition])
+    
+    try:
+        crs_def_model = CrossDefModel(crossdef_ini)
+    except ValidationError as e:
+        # Handle duplicate friction specification error
+        warnings.warn(f"Validation error in crossdef file: {e}")
+        warnings.warn("Attempting to fix duplicate friction specifications by removing frictionids where both are specified.")
+        
+        # Read and fix the INI file manually
+        from pathlib import Path
+        
+        # Read the file line by line and fix duplicate friction specifications
+        temp_file = Path(crossdef_ini).parent / f"{Path(crossdef_ini).stem}_temp.ini"
+        
+        with open(crossdef_ini, 'r') as f_in, open(temp_file, 'w') as f_out:
+            current_section_lines = []
+            in_section = False
+            has_friction_types_or_values = False
+            
+            for line in f_in:
+                stripped = line.strip()
+                
+                # Check if this is a section header
+                if stripped.startswith('[') and stripped.endswith(']'):
+                    # Write the previous section (if any) after processing
+                    if in_section and current_section_lines:
+                        # Check if we need to remove frictionIds
+                        if has_friction_types_or_values:
+                            # Filter out frictionIds line
+                            filtered_lines = [l for l in current_section_lines 
+                                            if not l.strip().lower().startswith('frictionids')]
+                            f_out.writelines(filtered_lines)
+                        else:
+                            f_out.writelines(current_section_lines)
+                    
+                    # Start new section
+                    current_section_lines = [line]
+                    in_section = True
+                    has_friction_types_or_values = False
+                else:
+                    # Add line to current section
+                    if in_section:
+                        current_section_lines.append(line)
+                        # Check for friction specification
+                        lower_line = stripped.lower()
+                        if lower_line.startswith('frictiontypes') or lower_line.startswith('frictionvalues'):
+                            has_friction_types_or_values = True
+            
+            # Write the last section
+            if in_section and current_section_lines:
+                if has_friction_types_or_values:
+                    filtered_lines = [l for l in current_section_lines 
+                                    if not l.strip().lower().startswith('frictionids')]
+                    f_out.writelines(filtered_lines)
+                else:
+                    f_out.writelines(current_section_lines)
+        
+        # Load the fixed file
+        crs_def_model = CrossDefModel(temp_file)
+        
+        # Clean up temp file
+        temp_file.unlink()
+    
+    crs_def_df = pd.DataFrame([cs.__dict__ for cs in crs_def_model.definition])
     crs_loc_df['profile'] = crs_loc_df.apply(lambda x: yz_to_xyz(branches=branches,
                                                                  branch_id=x['branchid'],
                                                                  chainage=x['chainage'],
@@ -298,7 +362,7 @@ def dhydro_to_stf(dhydro_network_nc, dhydro_map_nc, crossloc_ini, crossdef_ini, 
     if output_folder:
         calculation_points.to_csv(f"{output_folder}/{output_name}_calculation_points.csv")
 
-    cross_sections = dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini)
+    cross_sections = dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=epsg)
     cross_sections.rename(columns={'profile': 'geometry',
                                    'id': 'cname',
                                    'branchid': 'segment'},
