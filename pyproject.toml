@@ -1,6 +1,6 @@
 [project]
 name = "dhydro2isg"
-version = "0.0.3"
+version = "0.0.4"
 description = "Convert D-HYDRO output to ISG"
 authors = [
     {name = "Your Name", email = "you@example.com"}
@@ -8,7 +8,25 @@ authors = [
 license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "netCDF4",
+    "tqdm",
+    "matplotlib",
+    "numpy",
+    "scipy",
+    "pandas>=2.3.3,<3.0",
+    "shapely",
+    "sympy",
+    "geopandas>=1.1.1,<2.0",
+    "xarray",
+    "jupyter",
+    "plotly",
+    "pydantic>=1.10,<2.0",
+    "hydrolib-core>=0.10.1,<0.11",
+    "delft3dfmpy>=2.0.3,<3.0",
+    "kaleido",
+    "fiona",
+]
 keywords = ["dhydro", "imod", "hydrology", "modeling"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -41,26 +59,6 @@ dev = [
 
 [tool.setuptools]
 packages = ["dhydro2isg"]
-
-[tool.poetry.dependencies]
-python = "^3.12"
-netCDF4 = "*"
-tqdm = "*"
-matplotlib = "*"
-numpy = "*"
-scipy = "*"
-pandas = "^2.3.3"
-shapely = "*"
-sympy = "*"
-geopandas = "^1.1.1"
-xarray = "*"
-jupyter = "*"
-plotly = "*"
-pydantic = "*"
-hydrolib-core = "^0.10.1"
-delft3dfmpy = "^2.0.3"
-kaleido = "*"
-fiona = "*"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
