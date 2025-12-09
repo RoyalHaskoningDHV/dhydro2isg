@@ -1,14 +1,14 @@
 import pandas as pd
 import geopandas as gpd
-from top_flow.config import SEGMENTS_COLS, CROSS_SECTIONS_COLS, STRUCTURES_COLS, \
+from dhydro2isg.config import SEGMENTS_COLS, CROSS_SECTIONS_COLS, STRUCTURES_COLS, \
     DISCHARGE_RELATIONS_COLS, INDEX_COL_SEGMENTS, INDEX_COL_LOCATIONS, INDEX_COL_CALCULATION, INDEX_COL_DISCHARGE, \
     INDEX_COL_STRUCTURES, INDEX_CROSS_SECTIONS, COL_PARSE_DATES, LOCATIONS_COLS, CALCULATION_POINTS_COLS
-from top_flow.isg import ISG
-from top_flow.stf_funcs import validate_stf, isg_to_segments, isg_to_locations, isg_to_structures, \
+from dhydro2isg.isg import ISG
+from dhydro2isg.stf_funcs import validate_stf, isg_to_segments, isg_to_locations, isg_to_structures, \
     isg_to_calculation_points, isg_to_cross_sections, isg_to_discharge_relations
 import os
 from typing import Optional
-from top_flow.helper import seg_overlay
+from dhydro2isg.helper import seg_overlay
 
 import warnings
 warnings.filterwarnings("ignore")

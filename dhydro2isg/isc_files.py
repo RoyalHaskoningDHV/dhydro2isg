@@ -4,7 +4,7 @@ import pandas as pd
 import rasterio
 from tqdm.auto import tqdm
 from shapely.geometry import Point, LineString
-from top_flow.config import CRS_28992
+from dhydro2isg.config import CRS_28992
 
 def _coordinate_offset(offset, xy1, xy2, xy0=None):
     """
@@ -106,20 +106,20 @@ def isc_preprocess(raw_df, mrc):
     isc_clean_2 = isc_clean_2.astype(CROSS_SECTIONS_COLS)
     return isc_clean_2
 
-# todo naming functions
-def _create_ISC1_ISC2(w_segments, w_polygon, w_point, dem, offset_ics = 6, mrc = 1.12):
-    dem = rasterio.open(dem, mode="r")
-    intersection_points = to_intersectionpoint(w_segments, w_polygon, w_point, offset_ics=offset_ics)
-    boundary_points = sample_points(dem, intersection_points)
-    joined_df = boundary_points.join(w_point, how="left", rsuffix="mid", lsuffix="bound")
-    df_with_distance = joined_df.apply(
-        func=lambda x: _distance_between_points(x, column1="geometrybound", column2="geometrymid"),
-        axis=1)
-    df_with_left = _add_col_isleft(points=df_with_distance, lines=w_segments, line_col="geometry",point_col="geometrybound")
+# # todo naming functions
+# def _create_ISC1_ISC2(w_segments, w_polygon, w_point, dem, offset_ics = 6, mrc = 1.12):
+#     dem = rasterio.open(dem, mode="r")
+#     intersection_points = to_intersectionpoint(w_segments, w_polygon, w_point, offset_ics=offset_ics)
+#     boundary_points = sample_points(dem, intersection_points)
+#     joined_df = boundary_points.join(w_point, how="left", rsuffix="mid", lsuffix="bound")
+#     df_with_distance = joined_df.apply(
+#         func=lambda x: _distance_between_points(x, column1="geometrybound", column2="geometrymid"),
+#         axis=1)
+#     df_with_left = _add_col_isleft(points=df_with_distance, lines=w_segments, line_col="geometry",point_col="geometrybound")
 
-    isc = isc_preprocess(df_with_left, mrc=mrc)
-    isc = isc_preprocess(df_with_left, mrc=mrc)
-    return isc
+#     isc = isc_preprocess(df_with_left, mrc=mrc)
+#     isc = isc_preprocess(df_with_left, mrc=mrc)
+#     return isc
 
 
 

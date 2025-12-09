@@ -1,7 +1,7 @@
 from shapely.ops import  LineString, Point
 import numpy as np
 import geopandas as gpd
-from top_flow.config import INTERSECTION_BUFFER
+from dhydro2isg.config import INTERSECTION_BUFFER
 from typing import Optional
 from shapely.ops import nearest_points
 
