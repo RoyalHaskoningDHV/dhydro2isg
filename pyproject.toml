@@ -1,29 +1,29 @@
 [project]
 name = "dhydro2isg"
-version = "0.0.2"
+version = "0.0.3"
 description = "Convert D-HYDRO output to ISG"
 authors = [
     {name = "Your Name", email = "you@example.com"}
 ]
 license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
-requires-python = ">=3.8,<3.12"
+requires-python = ">=3.12"
 dependencies = [
     "netCDF4",
     "tqdm",
     "matplotlib",
     "numpy",
     "scipy",
-    "pandas",
+    "pandas=^2.3.3",
     "shapely",
     "sympy",
-    "geopandas>=0.10",
+    "geopandas=^1.1.1",
     "xarray",
     "jupyter",
     "plotly",
-    "pydantic==1.10",
-    "hydrolib-core==0.5.2",
-    "delft3dfmpy==1.2.2",
+    "pydantic",
+    "hydrolib-core=^0.10.1",
+    "delft3dfmpy=^2.0.3",
     "kaleido",
     "fiona",
     "tqdm"
