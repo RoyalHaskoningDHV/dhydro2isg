@@ -1,6 +1,6 @@
 [project]
 name = "dhydro2isg"
-version = "0.0.5"
+version = "0.1.0"
 description = "Convert D-HYDRO output to ISG"
 authors = [
     {name = "Your Name", email = "you@example.com"}
@@ -15,7 +15,7 @@ dependencies = [
     "numpy",
     "scipy",
     "pandas>=2.3.3,<3.0",
-    "shapely",
+    "shapely>=2.0",
     "sympy",
     "geopandas>=1.1.1,<2.0",
     "xarray",

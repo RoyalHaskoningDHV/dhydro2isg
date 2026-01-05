@@ -64,8 +64,10 @@ class STF:
         if minlength:
             self._segments = self._segments[self._segments.length >= minlength]
 
-        self._segments = self._segments[[len(i) != 0 for i in self._segments.boundary]]
-
+        # In Shapely 2.0, len() on geometry objects like MultiPoint raises TypeError.
+        # Use boundary.is_empty to keep only segments with non-empty boundaries (i.e., not closed rings).
+        self._segments = self._segments[~self._segments.boundary.is_empty]
+        
         segment_ids = list(self._segments.index)
         self._locations = self._locations.loc[self._locations["segment"].isin(segment_ids)]
 
