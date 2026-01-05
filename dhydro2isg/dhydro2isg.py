@@ -1,3 +1,4 @@
+import os
 import itertools
 import warnings
 from datetime import datetime, timedelta
@@ -339,30 +340,104 @@ def dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=N
 
 
 
-def dhydro_to_stf(dhydro_network_nc, dhydro_map_nc, crossloc_ini, crossdef_ini, output_name,
-                  start_time, end_time, resistance=1, infiltration=0.3, mrc=25, epsg=28992, output_folder=None, 
-                  aggregation_window="1D", aggregation_method="mean"):
-    net_gdf = create_topflow_net_gdf(dhydro_network_nc, epsg)
-    map_gdf = create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, window=aggregation_window, aggregation_method=aggregation_method)
+def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance: float=1, infiltration: float=0.3, mrc: float=25,output_name: str="output",
+                    stf_output_folder=None, relpath_network_nc: str="fm/network.nc", relpath_map_nc: str="fm/output/DFM_map.nc", relpath_crossloc_ini: str="fm/crsloc.ini", relpath_crossdef_ini: str="fm/crsdef.ini", 
+                  epsg=28992, aggregation_window="1D", aggregation_method="mean"):
+    
+    """
+    Convert D-HYDRO network and map data to STF (Sobek TopoFlow) format.
+    This function processes D-HYDRO NetCDF files and configuration files to create
+    a complete STF object with network topology, locations, calculation points,
+    cross-sections, and structures.
+    Parameters
+    ----------
+    dhydro_network_nc : str
+        Path to the D-HYDRO network NetCDF file containing network topology data.
+    dhydro_map_nc : str
+        Path to the D-HYDRO map NetCDF file containing map layer data.
+    crossloc_ini : str
+        Path to the D-HYDRO cross-section locations INI configuration file.
+    crossdef_ini : str
+        Path to the D-HYDRO cross-section definitions INI configuration file.
+    output_name : str
+        Base name for output files (used as prefix for shapefile and CSV exports).
+    start_time : str
+        Start time for the temporal calculation points (format: yyyy-mm-dd).
+    end_time : str
+        End time for the temporal calculation points (format: yyyy-mm-dd).
+    resistance : float, optional
+        Resistance coefficient for map layers (default: 1).
+    infiltration : float, optional
+        Infiltration rate for map layers (default: 0.3).
+    mrc : float, optional
+        Main river channel value for cross-sections (default: 25).
+    epsg : int, optional
+        EPSG code for the coordinate reference system (default: 28992, RD New).
+    output_folder : str, optional
+        Path to output folder for exporting shapefiles and CSV files.
+        If None, files are not exported (default: None).
+    aggregation_window : str, optional
+        Time window duration (default: "1D") specified as a pandas Timedelta-compatible 
+        string (e.g., "1D", "12H", "3600S"). Aggregation is performed on all timesteps 
+        within this window from the end of the simulation.
+    aggregation_method : str, optional
+        aggregation_method for missing water levels and water depths. NumPy aggregation function name (default: "mean"). Applied to water level and 
+        depth arrays (e.g., "mean", "max", "min"). Used via getattr(np, aggregation_method).
+    Returns
+    -------
+    STF
+        A STF object populated with segments, locations, calculation points,
+        cross-sections, and structures data ready for use in Sobek TopoFlow.
+    """
+    
+    # Define full paths to input files
+    dh_network_nc = os.path.join(dhydro_folder, relpath_network_nc)
+    dh_map_nc = os.path.join(dhydro_folder, relpath_map_nc)
+    dh_crossloc_ini = os.path.join(dhydro_folder, relpath_crossloc_ini)
+    dh_crossdef_ini = os.path.join(dhydro_folder, relpath_crossdef_ini)
+    
+    # Validate input parameters
+    required_files = {
+        'dhydro_network_nc': dh_network_nc,
+        'dhydro_map_nc': dh_map_nc,
+        'crossloc_ini': dh_crossloc_ini,
+        'crossdef_ini': dh_crossdef_ini
+    }
+    
+    for file_name, file_path in required_files.items():
+        if not Path(file_path).exists():
+            raise FileNotFoundError(f"{file_name} not found: {file_path}")
+    
+    os.mkdir(stf_output_folder, exist_ok=True) if stf_output_folder else None
+    
+    try:
+        datetime.strptime(start_time, "%Y-%m-%d")
+        datetime.strptime(end_time, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError("start_time and end_time must be in format '%Y-%m-%d' (e.g., '2018-01-01')")
+    
+    
+    net_gdf = create_topflow_net_gdf(dh_network_nc, epsg)
+    map_gdf = create_topflow_map_gdf(dh_map_nc, epsg, resistance, infiltration, window=aggregation_window, aggregation_method=aggregation_method)
     # map_with_network = ckdnearest(map_gdf, net_gdf)
     map_with_network = sjoin_map_with_net(map_gdf, net_gdf)
     map_with_network["cname"] = map_with_network.apply(lambda row: str(row["node_name"]) + str(row["segment"]), 1)
 
     segments = net_gdf[["label", "geometry"]]
 
-    if output_folder:
-        segments.to_file(f"{output_folder}/{output_name}_segments.shp")
+    if stf_output_folder:
+        segments.to_file(f"{stf_output_folder}/{output_name}_segments.shp")
 
     locations = map_with_network[["cname", "type", "segment", "geometry"]]
-    if output_folder:
-        locations.to_file(f"{output_folder}/{output_name}_locations.shp")
+    if stf_output_folder:
+        locations.to_file(f"{stf_output_folder}/{output_name}_locations.shp")
 
     calculation_points = map_with_network[["cname", "wlvl", "btml", "resis", "inff"]]
     calculation_points = make_calculation_points_temporal(calculation_points, start_time, end_time)
-    if output_folder:
-        calculation_points.to_csv(f"{output_folder}/{output_name}_calculation_points.csv")
+    if stf_output_folder:
+        calculation_points.to_csv(f"{stf_output_folder}/{output_name}_calculation_points.csv")
 
-    cross_sections = dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=epsg)
+    cross_sections = dhydro_to_crosssection(dh_network_nc, dh_crossloc_ini, dh_crossdef_ini, epsg=epsg)
     cross_sections.rename(columns={'profile': 'geometry',
                                    'id': 'cname',
                                    'branchid': 'segment'},
@@ -372,8 +447,8 @@ def dhydro_to_stf(dhydro_network_nc, dhydro_map_nc, crossloc_ini, crossdef_ini, 
     cross_sections = gpd.GeoDataFrame(geometry=cross_sections['geometry'],
                                       data=cross_sections[['cname', 'segment', 'mrc']],
                                       crs=f'EPSG:{epsg}')
-    if output_folder:
-        cross_sections.to_file(f"{output_folder}/{output_name}_cross_sections.shp")
+    if stf_output_folder:
+        cross_sections.to_file(f"{stf_output_folder}/{output_name}_cross_sections.shp")
 
     structures = pd.DataFrame(columns=STRUCTURES_COLS)
     qh = pd.DataFrame(columns=DISCHARGE_RELATIONS_COLS)
@@ -399,10 +474,10 @@ if __name__ == '__main__':
     crossdef_ini = folder/'input'/'crsdef.ini'
 
 
-    stf = dhydro_to_stf(dhydro_network_nc=dhydro_network_nc,
-                        dhydro_map_nc=dhydro_map_nc,
-                        crossloc_ini=crossloc_ini,
-                        crossdef_ini=crossdef_ini,
+    stf = dhydro_to_stf(dh_network_nc=dhydro_network_nc,
+                        dh_map_nc=dhydro_map_nc,
+                        dh_crossloc_ini=crossloc_ini,
+                        dh_crossdef_ini=crossdef_ini,
                         output_name="Merkske_test",
                         start_time=start_time,
                         end_time=end_time,
@@ -410,7 +485,7 @@ if __name__ == '__main__':
                         infiltration=0.3,
                         mrc=25,
                         epsg=28992,
-                        output_folder=wip_folder)
+                        stf_output_folder=wip_folder)
 
     stf.clean_stf(minlength=10)
     stf.export_to_shape(export_folder=str(output_folder), filename='Merkske_Q40_test')

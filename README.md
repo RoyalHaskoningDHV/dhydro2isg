@@ -22,7 +22,7 @@ QH relationships and structures are not supported.
 - Tool published open source under GPL v3 licence
 - Added support for installation via pip
 - Added example notebooks as documentation
-- Changed enviroment file to pyproject.toml
+- Changed environment file to pyproject.toml and update dependencies. 
 
 ### Version 0.2.0 
 In december 2023, Waterschap Aa en Maas receiced this package and developed it further, making the following updates:

@@ -1,6 +1,6 @@
 [project]
 name = "dhydro2isg"
-version = "0.3.0"
+version = "0.3.1"
 description = "Convert D-HYDRO output to ISG"
 authors = ["Haskoning"]
 repository = "https://github.com/RoyalHaskoningDHV/dhydro2isg"
