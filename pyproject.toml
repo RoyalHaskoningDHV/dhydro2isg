@@ -1,10 +1,9 @@
 [project]
 name = "dhydro2isg"
-version = "0.1.0"
+version = "0.3.0"
 description = "Convert D-HYDRO output to ISG"
-authors = [
-    {name = "Your Name", email = "you@example.com"}
-]
+authors = ["Haskoning"]
+repository = "https://github.com/RoyalHaskoningDHV/dhydro2isg"
 license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
 requires-python = ">=3.12"
@@ -26,6 +25,7 @@ dependencies = [
     "delft3dfmpy>=2.0.3,<3.0",
     "kaleido",
     "fiona",
+    "python>=3.9,<4"
 ]
 keywords = ["dhydro", "imod", "hydrology", "modeling"]
 classifiers = [

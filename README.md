@@ -1,15 +1,29 @@
 # Description 
-Dhydro_to_ISG is a package that makes it possible to read, export and create 
-the surfacewater components for groundwater models based on a DHydro model. 
+Dhydro2ISG is a package that makes it possible to read, export and create the surfacewater components for groundwater models based on a DHydro model. 
 There are different import formats possible that are stored in the "Standard Table Format" (STF). 
 The STF makes all input and output formats compatible. 
 
-The base of this script is developed for Waterschap Brbabantse Delta to convert the results of a 
-DHydro model to ISG format. From Dhydro the last timestep of the calculation is used to determine 
-the waterlevel (and bottom level) for the ISG. Profiles and segment locations are also extracted 
-from DHydro. There are no QH relationships or structures converted. 
+The base of this script is developed by Haskoning for Waterschap Brabantse Delta. This is further developed by waterschap Aa & Maas. In 2025 this tool is made open source with support of waterschap De Dommel. 
+
+Functionality:
+- Export a DHydro model to ISG format. Supports segments, cross sections, waterlevel at calculation points (time series)
+- Read DHydro format and ISG format into a standardized format (STF). This standardized data can be edited with GIS and exported to ISG. 
+
+Tested for Dhydro versions 2022 t/m 2025. 
+
+QH relationships and structures are not supported. 
+
+# Usage
+* Install in your Python enviroment using pip: `pip install dhydro2isg`
+* In the repo you can find an notebook with an example: https://github.com/RoyalHaskoningDHV/dhydro2isg/examples . This folder contains a notebook that demonstrates the workflow of reading an DHydro model and exporting it to ISG. 
 
 # Changelog
+### Version 0.3.0 
+- Tool published open source under GPL v3 licence
+- Added support for installation via pip
+- Added example notebooks as documentation
+- Changed enviroment file to pyproject.toml
+
 ### Version 0.2.0 
 In december 2023, Waterschap Aa en Maas receiced this package and developed it further, making the following updates:
 - update environment, using a more recent version of hydrolib-core 
@@ -32,21 +46,17 @@ In december 2023, Waterschap Aa en Maas receiced this package and developed it f
     - this addition is a large improvement for DHydro models with instabilities or fluctuations, for example at pump stations. 
     - defaults: 1 day window & mean for aggregation method. 
 
-# Usage
 
-* First, install the environment defined with `environment - new HL.yml`. Use anaconda prompt: `conda env create --file environment - new HL.yml`
-* Activate the environment: `activate dhydro_to_isg_new_hl`
-* Use `jupyter notebook`
-* Navigate to the folder `examples`. This folder contains a notebook that demonstrates the workflow of reading an DHydro model and exporting it to ISG.
 
 # Contact information
 
 ### Product owner
-* Toine.Kerckhoffs@rhdhv.com
+* toine.kerckhoffs@haskoning.com
 
 ### Developers
-* Jouke.verstappen@rhdhv.com
-* Jeroen.winkelhorst@rhdhv.com
-* Lisette.avis@rhdhv.com
-* Eline.steinbusch@rhdhv.com
+* jouke.verstappen@haskoning.com
+* jolijn.hiemstra@haskoning.com
+* jeroen.winkelhorst@haskoning.com
+* lisette.avis@haskoning.com
+* eline.steinbusch@haskoning.com
 * lweijers@aaenmaas.nl
