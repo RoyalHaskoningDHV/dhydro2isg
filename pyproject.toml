@@ -2,7 +2,7 @@
 name = "dhydro2isg"
 version = "0.3.1"
 description = "Convert D-HYDRO output to ISG"
-authors = ["Haskoning"]
+authors = [{name = "Haskoning"}]
 repository = "https://github.com/RoyalHaskoningDHV/dhydro2isg"
 license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
