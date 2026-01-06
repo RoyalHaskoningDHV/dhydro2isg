@@ -1,6 +1,6 @@
 [project]
 name = "dhydro2isg"
-version = "0.3.2"
+version = "0.3.3"
 description = "Convert D-HYDRO output to ISG"
 authors = [{name = "Haskoning"}]
 license = {text = "GPL-3.0-or-later"}
@@ -23,7 +23,7 @@ dependencies = [
     "hydrolib-core>=0.10.1,<0.11",
     "delft3dfmpy>=2.0.3,<3.0",
     "kaleido",
-    "fiona"
+    "fiona",
 ]
 keywords = ["dhydro", "imod", "hydrology", "modeling"]
 classifiers = [

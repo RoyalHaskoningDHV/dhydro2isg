@@ -35,11 +35,13 @@ This tool depends on hydrolib-core. If the model version is not supported by hyd
 * In the repo you can find an notebook with an example: https://github.com/RoyalHaskoningDHV/dhydro2isg/examples . This folder contains a notebook that demonstrates the workflow of reading an DHydro model and exporting it to ISG. 
 
 # Changelog
-### Version 0.3.0 
+
+### Version 0.3.3 
 - Tool published open source under GPL v3 licence
 - Added support for installation via pip
 - Added example notebooks as documentation
 - Changed environment file to pyproject.toml and update dependencies. 
+- Changed method to aggragate the value of waterlevels in the defined period
 
 ### Version 0.2.0 
 In december 2023, Waterschap Aa en Maas receiced this package and developed it further, making the following updates:
