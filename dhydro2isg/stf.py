@@ -1,14 +1,16 @@
+
+
 import pandas as pd
 import geopandas as gpd
-from top_flow.config import SEGMENTS_COLS, CROSS_SECTIONS_COLS, STRUCTURES_COLS, \
+from dhydro2isg.config import SEGMENTS_COLS, CROSS_SECTIONS_COLS, STRUCTURES_COLS, \
     DISCHARGE_RELATIONS_COLS, INDEX_COL_SEGMENTS, INDEX_COL_LOCATIONS, INDEX_COL_CALCULATION, INDEX_COL_DISCHARGE, \
-    INDEX_COL_STRUCTURES, INDEX_CROSS_SECTIONS, COL_PARSE_DATES, LOCATIONS_COLS, CALCULATION_POINTS_COLS
-from top_flow.isg import ISG
-from top_flow.stf_funcs import validate_stf, isg_to_segments, isg_to_locations, isg_to_structures, \
+    INDEX_COL_STRUCTURES, INDEX_CROSS_SECTIONS, COL_PARSE_DATES,LOCATIONS_COLS, CALCULATION_POINTS_COLS
+from dhydro2isg.isg import ISG
+from dhydro2isg.stf_funcs import validate_stf, isg_to_segments, isg_to_locations, isg_to_structures, \
     isg_to_calculation_points, isg_to_cross_sections, isg_to_discharge_relations
 import os
 from typing import Optional
-from top_flow.helper import seg_overlay
+from dhydro2isg.helper import seg_overlay
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -64,8 +66,10 @@ class STF:
         if minlength:
             self._segments = self._segments[self._segments.length >= minlength]
 
-        self._segments = self._segments[[len(i) != 0 for i in self._segments.boundary]]
-
+        # In Shapely 2.0, len() on geometry objects like MultiPoint raises TypeError.
+        # Use boundary.is_empty to keep only segments with non-empty boundaries (i.e., not closed rings).
+        self._segments = self._segments[~self._segments.boundary.is_empty]
+        
         segment_ids = list(self._segments.index)
         self._locations = self._locations.loc[self._locations["segment"].isin(segment_ids)]
 
@@ -142,6 +146,7 @@ class STF:
         The exported files can be imported with the import_from_shape function. Afterwards, use another export function to transform it to the desired output format.
 
         """
+        os.makedirs(export_folder, exist_ok=True)
         self._segments.reset_index().to_file(os.path.join(export_folder, filename + "_segments.shp"))
         self._locations.reset_index().to_file(os.path.join(export_folder, filename + "_locations.shp"))
         self._calculation_points.reset_index().to_csv(os.path.join(export_folder, filename + "_calculation_points.csv"))

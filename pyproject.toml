@@ -1,21 +1,34 @@
 [project]
-name = "dhydro2imod"
-version = "0.0.1"
-description = "Convert D-HYDRO output to iMOD input"
-authors = [
-    {name = "Your Name", email = "you@example.com"}
-]
-license = {text = "GPL-3.0"}
+name = "dhydro2isg"
+version = "0.3.3"
+description = "Convert D-HYDRO output to ISG"
+authors = [{name = "Haskoning"}]
+license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 dependencies = [
-    # Add your dependencies here
+    "netCDF4",
+    "tqdm",
+    "matplotlib",
+    "numpy",
+    "scipy",
+    "pandas>=2.3.3,<3.0",
+    "shapely>=2.0",
+    "sympy",
+    "geopandas>=1.1.1,<2.0",
+    "xarray",
+    "jupyter",
+    "plotly",
+    "pydantic>1.10",
+    "hydrolib-core>=0.10.1,<0.11",
+    "delft3dfmpy>=2.0.3,<3.0",
+    "kaleido",
+    "fiona",
 ]
 keywords = ["dhydro", "imod", "hydrology", "modeling"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -23,16 +36,14 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD"
-"Bug Reports" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD/issues"
-"Source" = "https://github.com/RoyalHaskoningDHV/D-HYDRO2iMOD"
-
-[project.scripts]
-dhydro2imod = "dhydro2imod.dhydro2imod:main"
+"Homepage" = "https://github.com/RoyalHaskoningDHV/dhydro2isg"
+"Bug Reports" = "https://github.com/RoyalHaskoningDHV/dhydro2isg/issues"
+"Source" = "https://github.com/RoyalHaskoningDHVdhydro2isg"
 
 [project.optional-dependencies]
 dev = [
@@ -43,6 +54,9 @@ dev = [
     "twine>=3.0",
     "build>=0.7",
 ]
+
+[tool.setuptools]
+packages = ["dhydro2isg"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
