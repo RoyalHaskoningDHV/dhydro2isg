@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, r'c:\Git\D-HYDRO2iMOD')
+
 import os
 import itertools
 import warnings
@@ -6,7 +9,7 @@ from operator import itemgetter
 from hydrolib.core.dflowfm.crosssection.models import CrossDefModel, CrossLocModel
 from pydantic import ValidationError
 import collections
-
+from tqdm import tqdm
 import geopandas as gpd
 import netCDF4 as nc
 import numpy as np
@@ -82,7 +85,7 @@ def create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, window
     """
     source = nc.Dataset(dhydro_map_nc)
     nodes_list = []
-    for i in range(len(source.variables["mesh1d_node_x"])):
+    for i in tqdm(range(len(source.variables["mesh1d_node_x"]))):
         node_str = listToString(source["mesh1d_node_id"][i])
 
         # convert time axis to seconds (if needed), then to seconds before end
@@ -97,8 +100,8 @@ def create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, window
         window_index = np.where(timesteps_seconds <= window_seconds)[0]
 
         # calculate the aggregated waterdepth within the specified window
-        aggregated_waterlevel = getattr(source.variables["mesh1d_s1"][window_index, i], "mean")()
-        aggregated_waterdepth = getattr(source.variables["mesh1d_waterdepth"][window_index, i], "mean")()
+        aggregated_waterlevel = getattr(source.variables["mesh1d_s1"][window_index, i], aggregation_method)()
+        aggregated_waterdepth = getattr(source.variables["mesh1d_waterdepth"][window_index, i], aggregation_method)()
 
         # handle missing values for aggregated waterlevels
         if isinstance(aggregated_waterlevel, np.ma.core.MaskedConstant):
@@ -197,7 +200,7 @@ def create_topflow_net_gdf(dhydro_net_nc, epsg):
     df_branches["start_node"] = ""
     df_branches["end_node"] = ""
 
-    for j in range(len(df_branches)):
+    for j in tqdm(range(len(df_branches))):
         if j == 0:
             start_node = 0
             end_node = 0 + df_branches["network_geom_node_count"][j]
@@ -458,39 +461,9 @@ def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance:
                         structures=structures, qh=qh, cross_sections=cross_sections.reset_index())
     return stf
 
-
+    
 if __name__ == '__main__':
-    folder = Path(r'd:\DHydro\T Merkske\Scenario_1_Referentie\Merkske_v14_Q40.dsproj_data\DFM')
-    output_folder = folder.parents[2]/'STF_OUTPUT_5'
-    wip_folder = output_folder/'WIP'
-    wip_folder.mkdir(exist_ok=True, parents=True)
-
-    start_time = "2018-01-01"
-    end_time = "2018-01-03"
-
-    dhydro_network_nc = folder/'input'/'Merske_Q100_net.nc'
-    dhydro_map_nc = folder/'output'/'DFM_map.nc'
-    crossloc_ini = folder/'input'/'crsloc.ini'
-    crossdef_ini = folder/'input'/'crsdef.ini'
-
-
-    stf = dhydro_to_stf(dh_network_nc=dhydro_network_nc,
-                        dh_map_nc=dhydro_map_nc,
-                        dh_crossloc_ini=crossloc_ini,
-                        dh_crossdef_ini=crossdef_ini,
-                        output_name="Merkske_test",
-                        start_time=start_time,
-                        end_time=end_time,
-                        resistance=1,
-                        infiltration=0.3,
-                        mrc=25,
-                        epsg=28992,
-                        stf_output_folder=wip_folder)
-
-    stf.clean_stf(minlength=10)
-    stf.export_to_shape(export_folder=str(output_folder), filename='Merkske_Q40_test')
-    stf.export_to_isg(export_folder=str(output_folder), filename='Merkske_Q40_test')
-
-    new = STF()
-    new.import_from_shape(import_folder=output_folder, prefix_filename='Merkske_Q40_test')
-    new.export_to_isg("Merkske_Q40_test_re-read", export_folder=str(output_folder))
+    import sys
+    sys.path.insert(0, r'c:\Git\D-HYDRO2iMOD\dhydro2isg')
+    df = create_topflow_map_gdf(dhydro_map_nc=r"c:\Users\905872\Haskoning\P-BK8839-WSVV-detachering-hydroloog - Team\WIP\01_modelbouw\Modellen\C Boven-heigraaf\Oud\T10_1D_1912_v0.18_basis\T10_1D_1912_v0.18_basis.dsproj_data\DFM\output\DFM_map.nc", epsg=28992, resistance=1, infiltration=0.3, window="1D", aggregation_method="mean")
+    df
