@@ -1,17 +1,34 @@
 # Description 
-Dhydro2ISG is a package that makes it possible to read, export and create the surfacewater components for groundwater models based on a DHydro model. 
-There are different import formats possible that are stored in the "Standard Table Format" (STF). 
-The STF makes all input and output formats compatible. 
+Dhydro2ISG is a Python package that can extract data from a D-Hydro model to input for a groundwater model in ISG format.  
 
-The base of this script is developed by Haskoning for Waterschap Brabantse Delta. This is further developed by waterschap Aa & Maas. In 2025 this tool is made open source with support of waterschap De Dommel. 
+The base of this script is developed by Haskoning for Waterschap Brabantse Delta. This is further developed by waterschap Aa & Maas. In 2025 this tool is made open source with financial support of waterboard De Dommel. 
 
-Functionality:
+# Functionality
 - Export a DHydro model to ISG format. Supports segments, cross sections, waterlevel at calculation points (time series)
 - Read DHydro format and ISG format into a standardized format (STF). This standardized data can be edited with GIS and exported to ISG. 
 
-Tested for Dhydro versions 2022 t/m 2025. 
+# ISG Support
+The tool creates an ISG file without support for surface-flow routing (ASFR=0). This ISG file contains the following parameters:
 
-QH relationships and structures are not supported. 
+| Parameter       | Description                                                            | Source |
+|-------------|------------------------------------------------------------------------|-----|
+| Water level | The water level at the calculation node for defined period                               | D-Hydro model |
+| Bottom level| The bottom level at the calculation node                               | D-Hydro model |
+| Resistance  | The resistance of the river bed at the calculation node (days)                                | Manual input |
+| Inf.factor  | The infiltration factor at the calculation node (-)                       | Manual input |
+| mrc  | Manning’s Resistance Coefficient MRC for the cross-section (-)                       | Manual input |
+ 
+
+Q-H relationships and structures are not supported. 
+
+
+# Notes
+Note that the code is tested for a limited amount of D-Hydro models and therefore it is required to validate the output before using it. The code is tested for D-Hydro versions XX, XX, 2025.01 and 2025.03. 
+
+The package is open-source so if you miss functionality you can create a new branch on github and propose a solution. If you experience a bug you can create an issue in github and preferable also propose a solution.  
+
+This tool depends on hydrolib-core. If the model version is not supported by hydrolib core this could raise an error. This is a known issue.
+
 
 # Usage
 * Install in your Python enviroment using pip: `pip install dhydro2isg`
