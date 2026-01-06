@@ -120,7 +120,9 @@ CALCULATION_POINTS_COLS = {"cname": str,
                            "btml": np.single,
                            "resis": np.single,
                            "inff": np.single}
-INDEX_COL_CALCULATION = ["cname", "datetime"]
+INDEX_COL_CALCULATION = ["cname", 
+                         "datetime"
+                         ]
 
 CROSS_SECTIONS_COLS = {"cname": str,
                        "mrc": np.single,

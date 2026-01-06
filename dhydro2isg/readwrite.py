@@ -79,4 +79,4 @@ def write_as_text(df, filename, ext, savedir):
         save_loc = savedir + "/" + filename + "_" + ext + ".txt"
         df.to_csv(save_loc, header=True, index=False, sep='\t', mode='w', quoting=csv.QUOTE_NONNUMERIC)
 
-    print(ext + " saved to " + save_loc)
+    # print(ext + " saved to " + save_loc)

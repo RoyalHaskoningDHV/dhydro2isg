@@ -23,7 +23,7 @@ dependencies = [
     "hydrolib-core>=0.10.1,<0.11",
     "delft3dfmpy>=2.0.3,<3.0",
     "kaleido",
-    "fiona"
+    "fiona",
 ]
 keywords = ["dhydro", "imod", "hydrology", "modeling"]
 classifiers = [

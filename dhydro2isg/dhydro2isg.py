@@ -1,9 +1,7 @@
-import sys
-sys.path.insert(0, r'c:\Git\D-HYDRO2iMOD')
-
 import os
 import itertools
 import warnings
+import re
 from datetime import datetime, timedelta
 from operator import itemgetter
 from hydrolib.core.dflowfm.crosssection.models import CrossDefModel, CrossLocModel
@@ -23,6 +21,7 @@ from pathlib import Path
 from dhydro2isg.stf import STF
 from dhydro2isg.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
 from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz
+
 
 def sjoin_map_with_net(map_gdf, net_gdf):
     """Alternative to ckdnearest: 
@@ -56,7 +55,16 @@ def ckdnearest(gdfA, gdfB, gdfB_cols=["segment"]):
     )
     return gdf
 
-def create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, window = "1D", aggregation_method="mean"):
+def parse_nc_resolution(s: str):
+    from datetime import timedelta
+    date_part, time_part = s[1:].split('T')   # remove leading 'P'
+    _, _, days = map(int, date_part.split('-'))
+    h, m, sec = map(int, time_part.split(':'))
+    td = timedelta(days=days, hours=h, minutes=m, seconds=sec)
+    return td
+
+
+def create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, start_time, end_time, aggregation_method="mean"):
     """
     This step will collect calculated values from DHydro from the map.nc file 
     This includes information like x, y coordinates, water level, water depth and node names
@@ -83,21 +91,49 @@ def create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, window
     gdf : geopandas.GeoDataFrame
         GeoDataFrame with the calculated values
     """
+    # parse start/end as pandas Timestamps (will be localized to map tz if needed)
+    start_time_dt = pd.to_datetime(start_time)
+    end_time_dt = pd.to_datetime(end_time)
+    # window = end_time_dt - start_time_dt
+    
     source = nc.Dataset(dhydro_map_nc)
+    td = parse_nc_resolution(source.time_coverage_resolution)
+    map_start = pd.to_datetime(source.time_coverage_start)
+    map_end = pd.to_datetime(source.time_coverage_end)
+    timesteps = pd.date_range(start=map_start, end=map_end, freq=td)
+    print(f"Map data time range: {map_start} to {map_end}, resolution: {td}")
+    # Ensure comparisons use the same timezone-awareness
+    map_tz = getattr(timesteps, 'tz', None)
+    if map_tz is not None:
+        start_ts = start_time_dt.tz_localize(map_tz) if start_time_dt.tzinfo is None else start_time_dt.tz_convert(map_tz)
+        end_ts = end_time_dt.tz_localize(map_tz) if end_time_dt.tzinfo is None else end_time_dt.tz_convert(map_tz)
+    else:
+        start_ts = start_time_dt
+        end_ts = end_time_dt
+
+    if start_ts < map_start or end_ts > map_end:
+        raise ValueError(f"start_time and end_time must be within the map data range: {map_start} to {map_end}")
+    
+    window_index = (timesteps >= start_ts) & (timesteps <= end_ts)
+    # timesteps_seconds = ((timesteps[-1] - timesteps[timesteps_mask]) / pd.Timedelta(seconds=1)).values.astype(int)
+    if not window_index.any():
+        raise ValueError(f"No timesteps found within the specified time range: {start_ts} to {end_ts}")
+    
     nodes_list = []
     for i in tqdm(range(len(source.variables["mesh1d_node_x"]))):
         node_str = listToString(source["mesh1d_node_id"][i])
 
-        # convert time axis to seconds (if needed), then to seconds before end
-        unit = source.variables["time"].units.split(" ")[0]
-        multiply_to_seconds = {"seconds": 1, "minutes": 60, "hours": 3600}
-        timesteps_seconds = source.variables["time"][:].data * multiply_to_seconds[unit]
-        timesteps_seconds = (timesteps_seconds - timesteps_seconds[-1]) * -1  # seconds before end 
-        timesteps_seconds = timesteps_seconds.astype(int)
+        # # convert time axis to seconds (if needed), then to seconds before end
+        # unit = source.variables["time"].units.split(" ")[0]
+        # multiply_to_seconds = {"seconds": 1, "minutes": 60, "hours": 3600}
+        # timesteps_seconds = source.variables["time"][:].data * multiply_to_seconds[unit]
+        # timesteps_seconds = (timesteps_seconds - timesteps_seconds[-1]) * -1  # seconds before end 
+        # timesteps_seconds = timesteps_seconds.astype(int)
         
-        # convert the window to seconds and find the corresponding index from timesteps_seconds
-        window_seconds = pd.to_timedelta(window).total_seconds()
-        window_index = np.where(timesteps_seconds <= window_seconds)[0]
+        # # convert the window to seconds and find the corresponding index from timesteps_seconds
+        # # window_seconds = pd.to_timedelta(window).total_seconds()
+        # window_seconds = window.total_seconds()
+        # window_index = np.where(timesteps_seconds <= window_seconds)[0]
 
         # calculate the aggregated waterdepth within the specified window
         aggregated_waterlevel = getattr(source.variables["mesh1d_s1"][window_index, i], aggregation_method)()
@@ -238,9 +274,10 @@ def make_calculation_points_temporal(x_calculation_points, start_time, end_time)
     end_time_dt = datetime.strptime(end_time, "%Y-%m-%d")
     df_length = len(x_calculation_points)
     simulation_duration = end_time_dt - start_time_dt
-    date_list = [
-        start_time_dt + timedelta(days=x) for x in range(simulation_duration.days + 1)
-    ]
+    # date_list = [
+    #     start_time_dt + timedelta(days=x) for x in range(simulation_duration.days + 1)
+    # ]
+    date_list = [start_time_dt, end_time_dt]
     rdf = pd.DataFrame(
         np.repeat(x_calculation_points.values, len(date_list), axis=0),
         columns=x_calculation_points.columns,
@@ -345,7 +382,7 @@ def dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=N
 
 def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance: float=1, infiltration: float=0.3, mrc: float=25,output_name: str="output",
                     stf_output_folder=None, relpath_network_nc: str="fm/network.nc", relpath_map_nc: str="fm/output/DFM_map.nc", relpath_crossloc_ini: str="fm/crsloc.ini", relpath_crossdef_ini: str="fm/crsdef.ini", 
-                  epsg=28992, aggregation_window="1D", aggregation_method="mean"):
+                  epsg=28992, aggregation_method="mean"):
     
     """
     Convert D-HYDRO network and map data to STF (Sobek TopoFlow) format.
@@ -421,7 +458,7 @@ def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance:
     
     
     net_gdf = create_topflow_net_gdf(dh_network_nc, epsg)
-    map_gdf = create_topflow_map_gdf(dh_map_nc, epsg, resistance, infiltration, window=aggregation_window, aggregation_method=aggregation_method)
+    map_gdf = create_topflow_map_gdf(dh_map_nc, epsg, resistance, infiltration, start_time=start_time, end_time=end_time, aggregation_method=aggregation_method)
     # map_with_network = ckdnearest(map_gdf, net_gdf)
     map_with_network = sjoin_map_with_net(map_gdf, net_gdf)
     map_with_network["cname"] = map_with_network.apply(lambda row: str(row["node_name"]) + str(row["segment"]), 1)
@@ -465,5 +502,5 @@ def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance:
 if __name__ == '__main__':
     import sys
     sys.path.insert(0, r'c:\Git\D-HYDRO2iMOD\dhydro2isg')
-    df = create_topflow_map_gdf(dhydro_map_nc=r"c:\Users\905872\Haskoning\P-BK8839-WSVV-detachering-hydroloog - Team\WIP\01_modelbouw\Modellen\C Boven-heigraaf\Oud\T10_1D_1912_v0.18_basis\T10_1D_1912_v0.18_basis.dsproj_data\DFM\output\DFM_map.nc", epsg=28992, resistance=1, infiltration=0.3, window="1D", aggregation_method="mean")
+    df = create_topflow_map_gdf(dhydro_map_nc=r"c:\Users\905872\Haskoning\P-BK8839-WSVV-detachering-hydroloog - Team\WIP\01_modelbouw\Modellen\C Boven-heigraaf\Oud\T10_1D_1912_v0.18_basis\T10_1D_1912_v0.18_basis.dsproj_data\DFM\output\DFM_map.nc", epsg=28992, resistance=1, infiltration=0.3, window="1D", aggregation_method="mean", start_time="2000-01-01", end_time="2000-01-10")
     df
