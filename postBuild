@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+# postBuild script for Binder using pyproject.toml
+
+# ensure pip is up to date and install Poetry
+python -m pip install --upgrade pip
+python -m pip install poetry
+
+# install into the container environment (not a Poetry venv)
+poetry config virtualenvs.create false --local
+
+# Install dependencies from pyproject.toml (without installing the project itself)
+poetry install --no-root --no-interaction --no-ansi
