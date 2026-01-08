@@ -1,0 +1,10 @@
+#!/bin/bash
+# Bugfix because mybinder does only recognize pyproject_toml but not pyproject.toml (8-1-2026)
+set -euo pipefail
+# postBuild script for Binder using pyproject.toml
+
+# Make a copy of pyproject.toml named pyproject_toml for tools that expect that filename
+if [ -f pyproject.toml ]; then
+	cp pyproject.toml pyproject_toml || echo "Warning: failed to copy pyproject.toml to pyproject_toml"
+	echo "Copied pyproject.toml -> pyproject_toml"
+fi
