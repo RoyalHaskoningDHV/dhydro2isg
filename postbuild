@@ -1,0 +1,8 @@
+#!/bin/bash
+# postBuild script for Binder using pyproject.toml
+
+# Install Poetry
+pip install poetry
+
+# Install dependencies from pyproject.toml (without installing the project itself)
+poetry install --no-root
