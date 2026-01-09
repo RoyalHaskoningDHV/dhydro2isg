@@ -91,6 +91,35 @@ def create_branches(network_nc, output_folder=False, epsg=None):
         branches.to_file(output_folder /'branches.shp')
     return branches
 
+def crsloc_ini_to_dataframe(filepath):
+    """
+    Reads a crsloc.ini file and returns a pandas DataFrame of cross sections, skipping the [General] header.
+    """
+    cross_sections = []
+    current = None
+    with open(filepath, 'r', encoding='utf-8') as f:
+            in_cross_section = False
+            for line in f:
+                    line = line.strip()
+                    if not line or line.startswith(';'):
+                        continue
+                    if line.startswith('[General]'):
+                        in_cross_section = False
+                        continue
+                    if line.startswith('[CrossSection]'):
+                        if current:
+                                cross_sections.append(current)
+                        current = {}
+                        in_cross_section = True
+                        continue
+                    if in_cross_section and '=' in line:
+                        key, value = map(str.strip, line.split('=', 1))
+                        current[key] = value
+            if current:
+                    cross_sections.append(current)
+    return pd.DataFrame(cross_sections)
+
+
 def create_crosssections(branches: gpd.GeoDataFrame, crossloc_ini: Path, output_folder=False):
     """
     Create geometry dataset of the crosssection locations, by projecting the points on the branch-network.
@@ -109,7 +138,8 @@ def create_crosssections(branches: gpd.GeoDataFrame, crossloc_ini: Path, output_
         output_folder = Path(output_folder)
 
     crossloc_source = Path(crossloc_ini)
-    cross_loc = pd.DataFrame([cs.__dict__ for cs in CrossLocModel(crossloc_source).crosssection])
+    # cross_loc = pd.DataFrame([cs.__dict__ for cs in CrossLocModel(crossloc_source).crosssection])
+    cross_loc = crsloc_ini_to_dataframe(crossloc_source)
 
     df_cross_loc = pd.merge(cross_loc, branches, on='branchid', how='left')
     gdf_cross_loc = gpd.GeoDataFrame(df_cross_loc, geometry='geometry', crs=branches.crs)

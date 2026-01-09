@@ -4,7 +4,7 @@ import warnings
 import re
 from datetime import datetime, timedelta
 from operator import itemgetter
-from hydrolib.core.dflowfm.crosssection.models import CrossDefModel, CrossLocModel
+from hydrolib.core.dflowfm.crosssection.models import CrossDefModel
 from pydantic import ValidationError
 import collections
 from tqdm import tqdm
@@ -20,8 +20,7 @@ from pathlib import Path
 
 from dhydro2isg.stf import STF
 from dhydro2isg.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
-from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz
-
+from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe
 
 def sjoin_map_with_net(map_gdf, net_gdf):
     """Alternative to ckdnearest: 
@@ -301,7 +300,8 @@ def hydamo_to_xyz_lines(hydamo_gdf, epsg, x_segments, mrc):
 
 def dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=None):
     branches = create_branches(dhydro_network_nc, output_folder=False, epsg=epsg)
-    crs_loc_df = pd.DataFrame([cs.__dict__ for cs in CrossLocModel(crossloc_ini).crosssection])
+    # crs_loc_df = pd.DataFrame([cs.__dict__ for cs in CrossLocModel(crossloc_ini).crosssection])
+    crs_loc_df = crsloc_ini_to_dataframe(crossloc_ini)
     
     try:
         crs_def_model = CrossDefModel(crossdef_ini)
