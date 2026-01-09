@@ -1,12 +1,8 @@
 import os
 import itertools
 import warnings
-import re
 from datetime import datetime, timedelta
 from operator import itemgetter
-from hydrolib.core.dflowfm.crosssection.models import CrossDefModel
-from pydantic import ValidationError
-import collections
 from tqdm import tqdm
 import geopandas as gpd
 import netCDF4 as nc
@@ -20,7 +16,7 @@ from pathlib import Path
 
 from dhydro2isg.stf import STF
 from dhydro2isg.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
-from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe
+from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe, crsdef_ini_to_dataframe
 
 def sjoin_map_with_net(map_gdf, net_gdf):
     """Alternative to ckdnearest: 
@@ -121,18 +117,6 @@ def create_topflow_map_gdf(dhydro_map_nc, epsg, resistance, infiltration, start_
     nodes_list = []
     for i in tqdm(range(len(source.variables["mesh1d_node_x"]))):
         node_str = listToString(source["mesh1d_node_id"][i])
-
-        # # convert time axis to seconds (if needed), then to seconds before end
-        # unit = source.variables["time"].units.split(" ")[0]
-        # multiply_to_seconds = {"seconds": 1, "minutes": 60, "hours": 3600}
-        # timesteps_seconds = source.variables["time"][:].data * multiply_to_seconds[unit]
-        # timesteps_seconds = (timesteps_seconds - timesteps_seconds[-1]) * -1  # seconds before end 
-        # timesteps_seconds = timesteps_seconds.astype(int)
-        
-        # # convert the window to seconds and find the corresponding index from timesteps_seconds
-        # # window_seconds = pd.to_timedelta(window).total_seconds()
-        # window_seconds = window.total_seconds()
-        # window_index = np.where(timesteps_seconds <= window_seconds)[0]
 
         # calculate the aggregated waterdepth within the specified window
         aggregated_waterlevel = getattr(source.variables["mesh1d_s1"][window_index, i], aggregation_method)()
@@ -303,82 +287,13 @@ def dhydro_to_crosssection(dhydro_network_nc, crossloc_ini, crossdef_ini, epsg=N
     # crs_loc_df = pd.DataFrame([cs.__dict__ for cs in CrossLocModel(crossloc_ini).crosssection])
     crs_loc_df = crsloc_ini_to_dataframe(crossloc_ini)
     
-    try:
-        crs_def_model = CrossDefModel(crossdef_ini)
-    except ValidationError as e:
-        # Handle duplicate friction specification error
-        warnings.warn(f"Validation error in crossdef file: {e}")
-        warnings.warn("Attempting to fix duplicate friction specifications by removing frictionids where both are specified.")
-        
-        # Read and fix the INI file manually
-        from pathlib import Path
-        
-        # Read the file line by line and fix duplicate friction specifications
-        temp_file = Path(crossdef_ini).parent / f"{Path(crossdef_ini).stem}_temp.ini"
-        
-        with open(crossdef_ini, 'r') as f_in, open(temp_file, 'w') as f_out:
-            current_section_lines = []
-            in_section = False
-            has_friction_types_or_values = False
-            
-            for line in f_in:
-                stripped = line.strip()
-                
-                # Check if this is a section header
-                if stripped.startswith('[') and stripped.endswith(']'):
-                    # Write the previous section (if any) after processing
-                    if in_section and current_section_lines:
-                        # Check if we need to remove frictionIds
-                        if has_friction_types_or_values:
-                            # Filter out frictionIds line
-                            filtered_lines = [l for l in current_section_lines 
-                                            if not l.strip().lower().startswith('frictionids')]
-                            f_out.writelines(filtered_lines)
-                        else:
-                            f_out.writelines(current_section_lines)
-                    
-                    # Start new section
-                    current_section_lines = [line]
-                    in_section = True
-                    has_friction_types_or_values = False
-                else:
-                    # Add line to current section
-                    if in_section:
-                        current_section_lines.append(line)
-                        # Check for friction specification
-                        lower_line = stripped.lower()
-                        if lower_line.startswith('frictiontypes') or lower_line.startswith('frictionvalues'):
-                            has_friction_types_or_values = True
-            
-            # Write the last section
-            if in_section and current_section_lines:
-                if has_friction_types_or_values:
-                    filtered_lines = [l for l in current_section_lines 
-                                    if not l.strip().lower().startswith('frictionids')]
-                    f_out.writelines(filtered_lines)
-                else:
-                    f_out.writelines(current_section_lines)
-        
-        # Load the fixed file
-        crs_def_model = CrossDefModel(temp_file)
-        
-        # Clean up temp file
-        temp_file.unlink()
-    
-    crs_def_df = pd.DataFrame([cs.__dict__ for cs in crs_def_model.definition])
+    crs_def_df = crsdef_ini_to_dataframe(crossdef_ini)
     crs_loc_df['profile'] = crs_loc_df.apply(lambda x: yz_to_xyz(branches=branches,
                                                                  branch_id=x['branchid'],
-                                                                 chainage=x['chainage'],
+                                                                 chainage=float(x['chainage']),
                                                                  crs_def_id=x['definitionid'],
                                                                  crs_def_df=crs_def_df), axis=1)
     return crs_loc_df
-    # crs_locations = create_crosssections(branches, crossloc_ini, output_folder=False)
-    # crs_def = CrossDefModel(crossdef_ini)
-    # crs_def_df = pd.DataFrame([cs.__dict__ for cs in crs_def.definition])
-
-
-
-
 
 def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance: float=1, infiltration: float=0.3, mrc: float=25,output_name: str="output",
                     stf_output_folder=None, relpath_network_nc: str="fm/network.nc", relpath_map_nc: str="fm/output/DFM_map.nc", relpath_crossloc_ini: str="fm/crsloc.ini", relpath_crossdef_ini: str="fm/crsdef.ini", 

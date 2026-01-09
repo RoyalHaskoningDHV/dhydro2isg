@@ -205,34 +205,26 @@ class STF:
         Imports files from gdf & df. The format and the amount of files (which is the standard table format, STF) must be equal to the format and amount of files of the export_to_shape function.
         """
         self._calculation_points = calculation_points
-        # self._calculation_points = self._calculation_points.astype(CALCULATION_POINTS_COLS)
-            # parse_dates=COL_PARSE_DATES)
         self._calculation_points = self._calculation_points[list(CALCULATION_POINTS_COLS.keys())]
         self._calculation_points.set_index(INDEX_COL_CALCULATION, inplace=True)
 
         self._structures = structures
-        # self._structures = self._structures.astype(STRUCTURES_COLS)
-                                       # parse_dates=COL_PARSE_DATES)
         self._structures = self._structures[list(STRUCTURES_COLS.keys())]
         self._structures.set_index(INDEX_COL_STRUCTURES, inplace=True)
 
         self._discharge_relations = qh
-        # self._discharge_relations = self._discharge_relations.astype(DISCHARGE_RELATIONS_COLS)
         self._discharge_relations = self._discharge_relations[list(DISCHARGE_RELATIONS_COLS.keys())]
         self._discharge_relations.set_index(INDEX_COL_DISCHARGE, inplace=True)
 
         self._segments = segments
-        # self._segments = self._segments.astype(SEGMENTS_COLS)
         self._segments = self._segments[list(SEGMENTS_COLS.keys())]
         self._segments.set_index(INDEX_COL_SEGMENTS, inplace=True)
 
         self._locations = locations
-        # self._locations = self._locations.astype(LOCATIONS_COLS)
         self._locations = self._locations[list(LOCATIONS_COLS.keys())]
         self._locations.set_index(INDEX_COL_LOCATIONS, inplace=True)
 
         self._cross_sections = cross_sections
-        # self._cross_sections = self._cross_sections.astype(CROSS_SECTIONS_COLS)
         self._cross_sections = self._cross_sections[list(CROSS_SECTIONS_COLS.keys())]
         self._cross_sections.set_index(INDEX_CROSS_SECTIONS, inplace=True)
         print("import succeeded")
@@ -257,19 +249,6 @@ class STF:
 
 
 
-if __name__ == '__main__':
-    test = STF()
-    test.import_isg(r'd:\DHydro\T Merkske\STF_OUTPUT_2\Merkske_Q40_test.ISG')
-    test.export_to_shape(r'd:\DHydro\T Merkske\STF_OUTPUT_2\ISG_TO_SHAPE', filename='isg_to_shape')
-
-    from pathlib import Path
-    output_folder = Path("../playground/test_bgt")
-    output_folder.mkdir(exist_ok=True)
-
-    test.clean_stf(minlength=10)
-    test.export_to_isg("Bugged_BGT", str(output_folder))
-    test.export_to_shape("Bugged_BGT", str(output_folder))
-    # # test.export_to_text("test3_isg", "output_folder")
 
 
 

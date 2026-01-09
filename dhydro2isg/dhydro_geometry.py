@@ -5,10 +5,6 @@ from shapely.geometry import LineString, Point
 from shapely.errors import ShapelyDeprecationWarning
 from pathlib import Path
 import warnings
-from hydrolib.core.dflowfm.crosssection.models import CrossLocModel
-
-
-#TODO: Create an MDU based class
 
 def create_branches(network_nc, output_folder=False, epsg=None):
     """
@@ -114,11 +110,65 @@ def crsloc_ini_to_dataframe(filepath):
                         continue
                     if in_cross_section and '=' in line:
                         key, value = map(str.strip, line.split('=', 1))
-                        current[key] = value
+                        current[key.lower()] = value
             if current:
                     cross_sections.append(current)
+    
     return pd.DataFrame(cross_sections)
 
+def crsdef_ini_to_dataframe(filepath):
+        # Read the file manually to handle duplicate [Definition] sections
+    yz_profiles = []
+    with open(filepath, 'r') as f:
+        current_section = {}
+        in_definition = False
+        
+        for line in f:
+            line = line.strip()
+            
+            # Check for section header
+            if line == '[Definition]':
+                # Save previous section if it was a YZ profile
+                if in_definition and current_section.get('type') == 'yz':
+                    yz_profiles.append(current_section.copy())
+                
+                # Start new section
+                current_section = {}
+                in_definition = True
+            
+            # Parse key-value pairs
+            elif in_definition and '=' in line:
+                key, value = line.split('=', 1)
+                key = key.strip().lower()
+                value = value.strip()
+                current_section[key] = value
+        
+        # Don't forget the last section
+        if in_definition and current_section.get('type') == 'yz':
+            yz_profiles.append(current_section.copy())
+
+    # Create DataFrame
+    df_yz_profiles = pd.DataFrame(yz_profiles)
+    
+    # Convert xcoordinates and ycoordinates from space-separated strings to lists of floats
+    if 'zcoordinates' in df_yz_profiles.columns:
+        df_yz_profiles['zcoordinates'] = df_yz_profiles['zcoordinates'].apply(
+            lambda s: [float(x) for x in s.split()] if isinstance(s, str) else []
+        )
+    if 'ycoordinates' in df_yz_profiles.columns:
+        df_yz_profiles['ycoordinates'] = df_yz_profiles['ycoordinates'].apply(
+            lambda s: [float(y) for y in s.split()] if isinstance(s, str) else []
+        )
+
+    # Convert numeric columns
+    if len(df_yz_profiles) > 0:
+        df_yz_profiles['thalweg'] = df_yz_profiles['thalweg'].astype(float)
+        df_yz_profiles['yzcount'] = df_yz_profiles['yzcount'].astype(int)
+        df_yz_profiles['sectioncount'] = df_yz_profiles['sectioncount'].astype(int)
+
+    # Display the dataframe
+    print(f"Found {len(df_yz_profiles)} YZ profiles")
+    return df_yz_profiles.drop_duplicates(subset=['id'])
 
 def create_crosssections(branches: gpd.GeoDataFrame, crossloc_ini: Path, output_folder=False):
     """
@@ -184,7 +234,7 @@ def yz_to_xyz(branches, branch_id, chainage, crs_def_id, crs_def_df):
     elif branch.geometry.length > chainage + 0.05:
         baseline_end = chainage + 0.05
     else:
-        raise ValueError("I don't know what to do here yet")
+        baseline_end = branch.geometry.length
 
     baseline_start = branch.geometry.interpolate(chainage)
     baseline_end = branch.geometry.interpolate(baseline_end)
@@ -200,8 +250,8 @@ def yz_to_xyz(branches, branch_id, chainage, crs_def_id, crs_def_df):
 
         line_list = []
         for i in range(int(nr)):
-            y = y_coords[i]
-            z = z_coords[i]
+            y = float(y_coords[i])
+            z = float(z_coords[i])
             if y < thalweg:
                 side = 'left'
             else:
@@ -209,29 +259,8 @@ def yz_to_xyz(branches, branch_id, chainage, crs_def_id, crs_def_df):
             side_line = baseline.parallel_offset(abs(y - thalweg), side)
             line_list.append(Point(side_line.coords[0][0], side_line.coords[0][1], z))
 
-        # left_inner = baseline.parallel_offset(bottom_width/2, 'left')
-        # right_inner = baseline.parallel_offset(bottom_width/2, 'right')
-        # left_inner_point = shapely.ops.transform(lambda x, y: (x, y, bottom_level), Point(left_inner.coords[0]))
-        # right_inner_point = shapely.ops.transform(lambda x, y: (x, y, bottom_level), Point(right_inner.coords[-1]))
-        #
-        # left_outer = baseline.parallel_offset(total_width/2, 'left')
-        # right_outer = baseline.parallel_offset(total_width/2, 'right')
-        # left_outer_point = shapely.ops.transform(lambda x, y: (x, y, upper_level), Point(left_outer.coords[0]))
-        # right_outer_point = shapely.ops.transform(lambda x, y: (x, y, upper_level), Point(right_outer.coords[-1]))
-
         profile_line = LineString(line_list)
         return profile_line
     else:
         return None
 
-
-
-if __name__ == '__main__':
-    test_folder = Path(r'D:/local/profile_optimizer/dflowfm')
-    net_nc = test_folder/'FlowFM_net.nc'
-    br = create_branches(net_nc)
-    ini = test_folder/r'crsloc.ini'
-    cr = create_crosssections(br, ini, test_folder)
-    fn_shp = test_folder/'selection.gpkg'
-    select = select_crosssection_locations(cr, fn_shp)
-    # print(select.head())
