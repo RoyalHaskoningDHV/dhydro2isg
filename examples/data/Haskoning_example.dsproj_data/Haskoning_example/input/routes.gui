@@ -1,0 +1,10 @@
+[Route]
+    name                  = route_1             
+    branch                = 2;2                 
+    chainage              = 0.000000 673.927111 
+
+[Route]
+    name                  = route_2             
+    branch                = 1;1                 
+    chainage              = 0.000000 1033.710826
+

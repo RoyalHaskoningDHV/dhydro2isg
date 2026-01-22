@@ -1,0 +1,7 @@
+__title__ = 'Top Flow'
+__description__ = 'Toolset for surfacewater processing for groundwater models'
+__author__ = 'RoyalHaskoningDHV'
+__author_email__ = 'Toine.Kerckhoffs@rhdhv.com'
+__license__ = 'Not open source'
+__url__ = 'https://dev.azure.com/corporateroot/Top_flow'
+__keywords__ = 'surfacewater groundwater topsysteem model'
