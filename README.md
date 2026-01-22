@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/RoyalHaskoningDHV/dhydro2isg/main?urlpath=%2Fdoc%2Ftree%2Fexamples%2Fdhydro+to+isg.ipynb)
+
 # Description 
 Dhydro2ISG is a Python package that can extract data from a D-Hydro model to input for a groundwater model in ISG format.  
 
@@ -35,6 +37,10 @@ This tool depends on hydrolib-core. If the model version is not supported by hyd
 * In the repo you can find an notebook with an example: https://github.com/RoyalHaskoningDHV/dhydro2isg/examples . This folder contains a notebook that demonstrates the workflow of reading an DHydro model and exporting it to ISG. 
 
 # Changelog
+
+### Version 0.4.0 
+- first release
+- removed hydrolib-core dependency
 
 ### Version 0.3.3 
 - Tool published open source under GPL v3 licence
