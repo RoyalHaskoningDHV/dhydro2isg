@@ -1,87 +1,92 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/RoyalHaskoningDHV/dhydro2isg/main?urlpath=%2Fdoc%2Ftree%2Fexamples%2Fdhydro+to+isg.ipynb)
 
-# Description 
-Dhydro2ISG is a Python package that can extract data from a D-Hydro model to input for a groundwater model in ISG format.  
+# Dhydro2ISG
 
-The base of this script is developed by Haskoning for Waterschap Brabantse Delta. This is further developed by waterschap Aa & Maas. In 2025 this tool is made open source with financial support of waterboard De Dommel. 
+**Dhydro2ISG** is a Python package for extracting data from D-Hydro models and converting it into ISG format for groundwater modeling.
 
-# Functionality
-- Export a DHydro model to ISG format. Supports segments, cross sections, waterlevel at calculation points (time series)
-- Read DHydro format and ISG format into a standardized format (STF). This standardized data can be edited with GIS and exported to ISG. 
+The initial version was developed by Haskoning for Waterschap Brabantse Delta and further enhanced by Waterschap Aa & Maas. In 2025, the tool was open-sourced with support from Waterboard De Dommel.
 
-# ISG Support
-The tool creates an ISG file without support for surface-flow routing (ASFR=0). This ISG file contains the following parameters:
+---
 
-| Parameter       | Description                                                            | Source |
-|-------------|------------------------------------------------------------------------|-----|
-| Water level | The water level at the calculation node for defined period                               | D-Hydro model |
-| Bottom level| The bottom level at the calculation node                               | D-Hydro model |
-| Resistance  | The resistance of the river bed at the calculation node (days)                                | Manual input |
-| Inf.factor  | The infiltration factor at the calculation node (-)                       | Manual input |
-| mrc  | Manning’s Resistance Coefficient MRC for the cross-section (-)                       | Manual input |
- 
+## Features
 
-Q-H relationships and structures are not supported. 
+- Export D-Hydro models to ISG format, supporting segments, cross-sections, and water levels at calculation points (time series).
+- Read both D-Hydro and ISG formats into a standardized format (STF), which can be edited in GIS and exported to ISG.
 
+---
 
-# Notes
-Note that the code is tested for a limited amount of D-Hydro models and therefore it is required to validate the output before using it. The code is tested for D-Hydro versions XX, XX, 2025.01 and 2025.03. 
+## ISG Support
 
-The package is open-source so if you miss functionality you can create a new branch on github and propose a solution. If you experience a bug you can create an issue in github and preferable also propose a solution.  
+The tool generates ISG files without surface-flow routing (ASFR=0). Supported parameters:
 
-This tool depends on hydrolib-core. If the model version is not supported by hydrolib core this could raise an error. This is a known issue.
+| Parameter    | Description                                                      | Source           |
+|--------------|------------------------------------------------------------------|------------------|
+| Water level  | Water level at the calculation node for the defined period       | D-Hydro model    |
+| Bottom level | Bottom level at the calculation node                             | D-Hydro model    |
+| Resistance   | River bed resistance at the calculation node (days)              | Manual input     |
+| Inf.factor   | Infiltration factor at the calculation node (-)                  | Manual input     |
+| mrc          | Manning’s Resistance Coefficient for the cross-section (-)       | Manual input     |
 
+> **Note:** Q-H relationships and structures are not supported.
 
-# Usage
-* Install in your Python enviroment using pip: `pip install dhydro2isg`
-* In the repo you can find an notebook with an example: https://github.com/RoyalHaskoningDHV/dhydro2isg/examples . This folder contains a notebook that demonstrates the workflow of reading an DHydro model and exporting it to ISG. 
+---
 
-# Changelog
+## Notes
 
-### Version 0.4.0 
-- first release
-- removed hydrolib-core dependency
+- The code has been tested on a limited set of D-Hydro models. Please validate the output before use.
+- Tested with D-Hydro versions: XX, XX, 2025.01, and 2025.03.
+- If you need additional functionality, create a branch and propose a solution via GitHub.
+- For bugs, please create an issue (and, if possible, a proposed fix).
+- The tool depends on `hydrolib-core`. Unsupported model versions may cause errors.
 
-### Version 0.3.3 
-- Tool published open source under GPL v3 licence
-- Added support for installation via pip
-- Added example notebooks as documentation
-- Changed environment file to pyproject.toml and update dependencies. 
-- Changed method to aggragate the value of waterlevels in the defined period
+---
 
-### Version 0.2.0 
-In december 2023, Waterschap Aa en Maas receiced this package and developed it further, making the following updates:
-- update environment, using a more recent version of hydrolib-core 
-    - as an effect, a higher Python version is also possible, but < 3.12
-    - all code has been updated to work with python 3.11.6
-    - pydantic = 1.10 was required for hydrolib-core to work properly
-    - new environment file: `environment - new HL.yml`
-- change the way calculation points are snapped to a waterline. 
-    - old method used ckdnearest, between the calculation point and the vertex-points of the waterlines. This causes mis-matches when a waterline has very few vertexed. e.g. a canal has very few vertexes because it is very straight. 
-    - newly added method: buffer the point and apply a sjoin. This method relies on the geography of the whole line, not just the vertex points. During development, we feared that a buffer + sjoin would be much slower, but for the test model (roughly 25 x 15 km large), the old way took 2 minutes, 8 seconds, whereas the new way takes 2 minutes, 18 seconds. This is not a significant increase in runtime. 
-    - this change is implemented in top_flow/dhydro.py. The new function is defined in the top of that document. The practical implementation is done in the function `dhydro_to_stf`. One of the first lines in `dhydro_to_stf`: 
-```
-    # map_with_network = ckdnearest(map_gdf, net_gdf)
-    map_with_network = sjoin_map_with_net(map_gdf, net_gdf)
-```
-- add option for aggregation in a window at the end of a calculation. 
-    - previously, the resulting IPF was based on waterlevel of the final timestep. 
-    - now, a window is chosen (e.g. "1D" for final 1 day of the DHydro calculation)
-    - then, an aggregation is chosen (e.g. "mean" or "min")
-    - this addition is a large improvement for DHydro models with instabilities or fluctuations, for example at pump stations. 
-    - defaults: 1 day window & mean for aggregation method. 
+## Installation & Usage
+
+- Install via pip:
+
+    ```bash
+    pip install dhydro2isg
+    ```
+
+- Documentation in the example notebook: [examples folder](https://github.com/RoyalHaskoningDHV/dhydro2isg/examples) demonstrates reading a D-Hydro model and exporting to ISG.
+
+---
+
+## Changelog
+
+### Version 1.0.0
+
+- First release
+- Minor textual improvements
+
+### Version 0.4.0
 
 
+- Removed hydrolib-core dependency
 
-# Contact information
+### Version 0.3.3
 
-### Product owner
-* toine.kerckhoffs@haskoning.com
+- Published open source under GPL v3 license
+- Added pip installation support
+- Added example notebooks
+- Migrated environment file to `pyproject.toml` and updated dependencies
+- Improved aggregation of water levels over defined periods
 
-### Developers
-* jouke.verstappen@haskoning.com
-* jolijn.hiemstra@haskoning.com
-* jeroen.winkelhorst@haskoning.com
-* lisette.avis@haskoning.com
-* eline.steinbusch@haskoning.com
-* lweijers@aaenmaas.nl
+### Version 0.2.0
+
+- Updated environment and hydrolib-core version (Python < 3.12, tested with 3.11.6)
+- Required `pydantic = 1.10` for hydrolib-core compatibility
+- New environment file: `environment - new HL.yml`
+- Improved snapping of calculation points to waterlines using buffer + spatial join (sjoin), replacing `ckdnearest`
+- Added aggregation window option for final calculation period (e.g., "1D" for last day, with "mean" or "min" aggregation)
+- Default: 1-day window, mean aggregation
+
+---
+
+## Contact
+
+**Product Owner**
+- toine.kerckhoffs@haskoning.com
+
+
