@@ -38,6 +38,7 @@ jobs:
       run: python -m build
 
     - name: Test package installation
+      shell: bash
       run: |
         pip install dist/*.whl
 

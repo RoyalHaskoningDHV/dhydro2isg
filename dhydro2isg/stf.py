@@ -121,6 +121,7 @@ class STF:
         if validate_stf(self):
             isg_export = ISG()
             isg_export.create_from_stf(self)
+            os.makedirs(export_folder, exist_ok=True)
             isg_export.export_isg(filename, export_folder)
             print(f"Exported to ISG {export_folder + '/' + filename}")
         else:
