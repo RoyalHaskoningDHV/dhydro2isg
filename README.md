@@ -1,8 +1,8 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/RoyalHaskoningDHV/dhydro2isg/main?urlpath=%2Fdoc%2Ftree%2Fexamples%2Fdhydro+to+isg.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/RoyalHaskoningDHV/dhymod_link/main?urlpath=%2Fdoc%2Ftree%2Fexamples%2Fdhymod_link.ipynb)
 
-# Dhydro2ISG
+# D-HyMOD Link
 
-**Dhydro2ISG** is a Python package for extracting data from D-Hydro models and converting it into ISG format for groundwater modeling.
+**D-HyMOD Link** is a Python package that links D-Hydro and iMOD. This tool converts D-Hydro output to iMOD input (isg).
 
 The initial version was developed by Haskoning for Waterschap Brabantse Delta and further enhanced by Waterschap Aa & Maas. In 2025, the tool was open-sourced with support from Waterboard De Dommel.
 
@@ -34,7 +34,6 @@ The tool generates ISG files without surface-flow routing (ASFR=0). Supported pa
 ## Notes
 
 - The code has been tested on a limited set of D-Hydro models. Please validate the output before use.
-- Tested with D-Hydro versions: XX, XX, 2025.01, and 2025.03.
 - If you need additional functionality, create a branch and propose a solution via GitHub.
 - For bugs, please create an issue (and, if possible, a proposed fix).
 - The tool depends on `hydrolib-core`. Unsupported model versions may cause errors.
@@ -46,7 +45,7 @@ The tool generates ISG files without surface-flow routing (ASFR=0). Supported pa
 - Install via pip:
 
     ```bash
-    pip install dhydro2isg
+    pip install dhymod_link
     ```
 
 - Documentation in the example notebook: [examples folder](https://github.com/RoyalHaskoningDHV/dhydro2isg/examples) demonstrates reading a D-Hydro model and exporting to ISG.
@@ -54,6 +53,10 @@ The tool generates ISG files without surface-flow routing (ASFR=0). Supported pa
 ---
 
 ## Changelog
+
+### Version 1.0.2
+
+- Rename tool to D-HyMOD Link
 
 ### Version 1.0.0
 
