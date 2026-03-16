@@ -1,8 +1,6 @@
 import os
 import numpy as np
 from pyproj import CRS
-from tqdm import tqdm
-from datetime import date
 
 CRS_28992 = CRS.from_epsg(28992)  #: RD New
 CRS_4326 = CRS.from_epsg(4326)  #: WGS84, Default web projection when making interactive plots or dashboards
