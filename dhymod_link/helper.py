@@ -21,21 +21,7 @@ def get_chainage(point: Point, line: LineString, buffer=INTERSECTION_BUFFER):
         return line.project(point)
     else:
         return None
-
-# def _get_nearest_zvalue(gdf1, gdf2) -> np.single:
-#     """
-#     for a point: Get the nearest minimum z-value (ahn) from cross section boundary points . (same segment)
-#     """
-#     gdf2_segment_filter = gdf2[gdf2["segment"] == gdf1["segment"]]
-#     gdf2_segment_filter["centroid"] = gdf2_segment_filter["geometry"].centroid
-#     gdf2_centroid_union= gdf2_segment_filter["centroid"].unary_union
-
-#     if gdf1["geometry"] is not None and gdf2_centroid_union is not None:
-#         nearest_point = nearest_points(gdf1["geometry"], gdf2_centroid_union)
-#         loc = gdf2_segment_filter[gdf2_segment_filter["centroid"].values == nearest_point[1]]
-#         res = loc['geometry'].apply(lambda geom: np.min([coord[2] for coord in [geom.coords[0], geom.coords[-1]]])).values[0]
-#         return res
-
+    
 
 def seg_overlay(gdf1: gpd.GeoDataFrame, gdf2: gpd.GeoDataFrame, bufferdist: int, minlength: Optional[int],
                 save_deleted: bool, save_deleted_folder: Optional[str])\
