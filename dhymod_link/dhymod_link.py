@@ -14,9 +14,9 @@ from scipy.spatial import cKDTree
 from shapely.geometry import LineString, Point
 from pathlib import Path
 
-from dhydro2isg.stf import STF
-from dhydro2isg.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
-from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe, crsdef_ini_to_dataframe
+from dhymod_link.stf import STF
+from dhymod_link.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
+from dhymod_link.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe, crsdef_ini_to_dataframe
 
 def sjoin_map_with_net(map_gdf, net_gdf):
     """Alternative to ckdnearest: 
@@ -412,10 +412,3 @@ def dhydro_to_stf(dhydro_folder: str, start_time: str, end_time: str,resistance:
     stf.import_from_gdf(segments=segments, locations=locations, calculation_points=calculation_points,
                         structures=structures, qh=qh, cross_sections=cross_sections.reset_index())
     return stf
-
-    
-if __name__ == '__main__':
-    import sys
-    sys.path.insert(0, r'c:\Git\D-HYDRO2iMOD\dhydro2isg')
-    df = create_topflow_map_gdf(dhydro_map_nc=r"c:\Users\905872\Haskoning\P-BK8839-WSVV-detachering-hydroloog - Team\WIP\01_modelbouw\Modellen\C Boven-heigraaf\Oud\T10_1D_1912_v0.18_basis\T10_1D_1912_v0.18_basis.dsproj_data\DFM\output\DFM_map.nc", epsg=28992, resistance=1, infiltration=0.3, window="1D", aggregation_method="mean", start_time="2000-01-01", end_time="2000-01-10")
-    df

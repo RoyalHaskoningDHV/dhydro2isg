@@ -1,8 +1,8 @@
 import os
-from dhydro2isg.readwrite import write_as_text, write_as_binary
-from dhydro2isg.stf_funcs import stf_to_isp, stf_to_isd, stf_to_isq, stf_to_ist, stf_to_isc, stf_to_isg
-from dhydro2isg.config import ISG_DTYPES
-from dhydro2isg.readwrite import read_meta, read_isg_files
+from dhymod_link.readwrite import write_as_text, write_as_binary
+from dhymod_link.stf_funcs import stf_to_isp, stf_to_isd, stf_to_isq, stf_to_ist, stf_to_isc, stf_to_isg
+from dhymod_link.config import ISG_DTYPES
+from dhymod_link.readwrite import read_meta, read_isg_files
 
 class ISG:
     """"

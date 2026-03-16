@@ -2,7 +2,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from shapely.geometry import Point, LineString
-from dhydro2isg.config import CRS_28992
+from dhymod_link.config import CRS_28992
 
 def _coordinate_offset(offset, xy1, xy2, xy0=None):
     """
