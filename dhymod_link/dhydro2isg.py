@@ -14,9 +14,9 @@ from scipy.spatial import cKDTree
 from shapely.geometry import LineString, Point
 from pathlib import Path
 
-from dhydro2isg.stf import STF
-from dhydro2isg.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
-from dhydro2isg.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe, crsdef_ini_to_dataframe
+from dhymod_link.stf import STF
+from dhymod_link.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
+from dhymod_link.dhydro_geometry import create_branches, create_crosssections, yz_to_xyz, crsloc_ini_to_dataframe, crsdef_ini_to_dataframe
 
 def sjoin_map_with_net(map_gdf, net_gdf):
     """Alternative to ckdnearest: 

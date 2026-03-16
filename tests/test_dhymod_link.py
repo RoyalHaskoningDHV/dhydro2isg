@@ -5,9 +5,9 @@ import os
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
-from dhydro2isg.dhydro2isg import dhydro_to_stf
-from dhydro2isg.stf import STF
-from dhydro2isg.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
+from dhymod_link.dhydro2isg import dhydro_to_stf
+from dhymod_link.stf import STF
+from dhymod_link.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
 
 
 @pytest.fixture

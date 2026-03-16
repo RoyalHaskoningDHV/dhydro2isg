@@ -5,14 +5,14 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Point, LineString
-from dhydro2isg.config import ISG_DTYPES, ISD2_COLUMNS, \
+from dhymod_link.config import ISG_DTYPES, ISD2_COLUMNS, \
     COL_LINE_ID, IST2_COLUMNS, ISQ2_COLUMNS,\
     ISD2_mapping, ISC2_COLUMNS, LOCATIONS_TYPES, ISQ2_mapping, IST2_mapping, ISG_coupled, IS_1_COLUMNS, \
     CALCULATION_POINTS_COLS, STRUCTURES_COLS, INDEX_COL_STRUCTURES, INDEX_COL_CALCULATION, DISCHARGE_RELATIONS_COLS, \
     INDEX_COL_DISCHARGE, CROSS_SECTIONS_COLS, INDEX_CROSS_SECTIONS, ISG_COLUMNS,INDEX_COL_LOCATIONS, \
     LOCATIONS_TYPE, SEGMENTS_COLS
-from dhydro2isg.helper import get_chainage
-from dhydro2isg.isc_files import is_left, _coordinate_offset
+from dhymod_link.helper import get_chainage
+from dhymod_link.isc_files import is_left, _coordinate_offset
 from datetime import datetime
 pd.set_option("mode.chained_assignment", None)
 

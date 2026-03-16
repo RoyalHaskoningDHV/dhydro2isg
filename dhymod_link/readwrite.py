@@ -3,7 +3,7 @@ import glob
 import pandas as pd
 import numpy as np
 import csv
-from dhydro2isg.config import ISG_DTYPES, ISG_COLUMNS, QMARKS_COLUMNS, ISG_HEADERROWS, ISG_RECORDLENGTH
+from dhymod_link.config import ISG_DTYPES, ISG_COLUMNS, QMARKS_COLUMNS, ISG_HEADERROWS, ISG_RECORDLENGTH
 
 
 def read_meta(ISG_file):
