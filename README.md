@@ -1,4 +1,4 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/RoyalHaskoningDHV/dhymod_link/main?urlpath=%2Fdoc%2Ftree%2Fexamples%2Fdhymod_link.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/RoyalHaskoningDHV/d-hymod_link/main?urlpath=%2Fdoc%2Ftree%2Fexamples%2Fdhymod_link.ipynb)
 
 # D-HyMOD Link
 
