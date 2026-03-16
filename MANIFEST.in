@@ -1,7 +1,7 @@
 include README.md
 include LICENSE
 include pyproject.toml
-recursive-include dhydro2imod *.py
+recursive-include dhymod_link *.py
 global-exclude *.pyc
 global-exclude __pycache__
 global-exclude .git*

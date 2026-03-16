@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
-from dhymod_link.dhydro2isg import dhydro_to_stf
+from dhymod_link.dhymod_link import dhydro_to_stf
 from dhymod_link.stf import STF
 from dhymod_link.config import STRUCTURES_COLS, DISCHARGE_RELATIONS_COLS
 
