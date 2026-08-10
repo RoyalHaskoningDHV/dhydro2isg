@@ -54,6 +54,10 @@ The tool generates ISG files without surface-flow routing (ASFR=0). Supported pa
 
 ## Changelog
 
+### Version 1.0.4
+
+- Bugfix coupling cross sections to segments
+
 ### Version 1.0.2
 
 - Rename tool to D-HyMOD Link
