@@ -129,6 +129,11 @@ class ISG:
 
         self._isp_df = stf_to_isp(stf.segments)
         self._isd1_df, self._isd2_df = stf_to_isd(stf_calcpts=stf.calculation_points, stf_segments=stf.segments, stf_locations=stf.locations)
+        
+        # create an order mapping dataframe form the index of stf.segments
+        df2order = {idx:i for i, idx in enumerate(stf.segments.index)}
+        stf.cross_sections.sort_values(by='segment', key=lambda x: x.map(df2order), inplace=True)
+        
         self._isc1_df, self._isc2_df = stf_to_isc(stf_cross=stf.cross_sections, stf_segments=stf.segments)
         self._ist1_df, self._ist2_df = stf_to_ist(stf_struc=stf.structures, stf_segments=stf.segments, stf_locations=stf.locations)
         self._isq1_df, self._isq2_df = stf_to_isq(stf_qh=stf.discharge_relations, stf_segments=stf.segments, stf_locations=stf.locations)
